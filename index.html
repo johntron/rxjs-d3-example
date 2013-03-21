@@ -1,0 +1,133 @@
+<html>
+<head>
+    <link href="//fonts.googleapis.com/css?family=Corben" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/themes/github.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>D3.js + RxJS</h1>
+<p>
+    This is a real-world demonstration of D3.js and RxJS. Below is horizontal bar graph showing money spent vs money budgeted for the current month.
+</p>
+<h2>Demo</h2>
+<p>
+    Marketing <span id="graph"></span>
+    <button id="plus">+</button><input type="number" value="20"><span class="prefix">$</span><button id="minus">&minus;</button>
+</p>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rxjs/2.1.0/rx.min.js"></script>
+<script src="rx.jquery.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/rainbow.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/generic.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/javascript.js"></script>
+<script>
+    $(function() {
+        // Insert the source code into the age
+        var source = $('<code>').html($('script:last').text().trim()).attr('data-language', 'javascript');
+        $('pre').append(source);
+    });
+</script>
+<h2>Source</h2>
+<pre></pre>
+<script id="source">
+$(function() {
+    var width = 340,
+        height = 20;
+
+    // Create a scale we can use to convert input values to pixels
+    var spentScale = d3.scale.linear().range([0, width]);
+
+    // Create an SVG to hold the graph
+    var graph = d3.select("#graph").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+    // Append a background to delineate edges of graph
+    graph.append("rect")
+            .attr('y', height / 4)
+            .attr('width', width)
+            .attr('height', height * 0.75)
+            .attr('class', 'background');
+
+    // Create a scale for today's position in the month
+    var now = new Date;
+    var monthBegin = new Date(now.getFullYear(), now.getMonth(), 1);
+    var monthEnd = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    var timeScale = d3.time.scale()
+            .domain([monthBegin, monthEnd])
+            .range([0, width]);
+
+    // Append a marker for today
+    graph.append("rect")
+            .data([new Date])
+            .attr('x', timeScale)
+            .attr('fill', '#000')
+            .attr('width', 1)
+            .attr('height', height)
+            .attr('class', 'marker');
+
+    // Create a placeholder for the progress bar
+    var progress = graph.append('g').attr('class', 'progress');
+
+    /**
+     * Redraws progress for the month.
+     * @param spent     Money spent so far this month
+     * @param budget    Money budgeted for this month
+     */
+    var updateGraph = function(spent, budget) {
+        // Set the maximum value for the scale to whatever was budgeted
+        spentScale.domain([0,budget]);
+
+        // Clear existing graph in case we're redrawing
+        $('#graph .progress').empty();
+
+        // Update graph data
+        progress.data([spent]);
+
+        // Draw the progress bar showing money spent
+        progress.append("rect")
+                .attr('x', 0)
+                .attr('y', height / 4)
+                .attr('width', spentScale)
+                .attr('height', height * 0.75)
+                .attr('class', 'spent-bar');
+
+        // Add a label
+        progress.append("text")
+                .attr('x', spentScale)
+                .attr('y', height / 4)
+                .attr('font-size', height * 0.7)
+                .attr('dx', -3)
+                .attr('dy', '0.97em')
+                .attr('text-anchor', 'end')
+                .text(function(spent) { return '$' + spent; })
+                .attr('class', 'spent-text');
+    };
+
+    // UI controls
+    var clickPlus = $('#plus').clickAsObservable()
+            .select(function() { return +$('input').val() + 1; });
+
+    var keyupInput = $('input').keyupAsObservable()
+            .select(function(e) { return +$(e.target).val(); });
+
+    var clickMinus = $('#minus').clickAsObservable()
+            .select(function() { return +$('input').val() - 1; });
+
+    var changeNumbers = clickPlus.merge(keyupInput).merge(clickMinus);
+    changeNumbers.subscribe(function(budget) {
+        $('input').val(budget);
+        updateGraph(spent, budget);
+    });
+
+
+    // Initialize everything
+    var spent = 10;
+    var budget = $('input').val();
+    updateGraph(spent, budget);
+});
+</script>
+</body>
+</html>

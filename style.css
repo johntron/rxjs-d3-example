@@ -1,0 +1,66 @@
+/* Generic */
+
+body {
+  font-family: 'Droid Sans', Helvetica, Arial, sans-serif;
+  font-size: 1em;
+  width: 37em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h1, h2 { font-family: 'Corben', Georgia, Times, serif; }
+
+h2 { font-weight: normal; margin-top: 3em; }
+
+p { line-height: 1.5em; }
+
+pre { margin-top: 0; }
+
+
+/* Graph */
+
+#graph {
+  display: inline-block;
+  margin-left: 0.5em;
+  margin-right: 1em;
+  position: relative;
+  top: 0.1em;
+}
+
+#graph .background { fill: #DDD; }
+
+#graph .spent-bar { fill: dodgerblue; }
+
+#graph .spent-text {
+  font-family: inherit;
+  fill: white;
+}
+
+
+/* UI controls */
+
+input, button {
+  font-family: inherit;
+  font-size: inherit;
+  text-align: center;
+  line-height: 1em;
+}
+
+input {
+  margin-left: 0.25em;
+  text-indent: 0.1em;
+  width: 2.3em;
+  border-width: 0;
+}
+
+.prefix {
+  margin-left: -2.25em;
+  margin-right: 2em;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* Hide spinner buttons on number input */
+  -webkit-appearance: none;
+  margin: 0;
+}
