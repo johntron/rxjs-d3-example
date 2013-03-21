@@ -10,7 +10,7 @@ body {
 
 h1, h2 { font-family: 'Corben', Georgia, Times, serif; }
 
-h2 { font-weight: normal; margin-top: 3em; }
+h2 { font-weight: normal; margin-top: 2em; }
 
 p { line-height: 1.5em; }
 
@@ -47,15 +47,11 @@ input, button {
 }
 
 input {
-  margin-left: 0.25em;
-  text-indent: 0.1em;
-  width: 2.3em;
-  border-width: 0;
-}
-
-.prefix {
-  margin-left: -2.25em;
-  margin-right: 2em;
+  margin-left: -0.75em;
+  text-indent: 0.6em;
+  width: 2.1em;
+  border: 1px solid #DDD;
+  background-color: transparent
 }
 
 input::-webkit-outer-spin-button,

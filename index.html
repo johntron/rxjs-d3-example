@@ -6,14 +6,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>D3.js + RxJS</h1>
-<p>
-    This is a real-world demonstration of D3.js and RxJS. Below is horizontal bar graph showing money spent vs money budgeted for the current month.
-</p>
+<h1>RxJS + D3.js</h1>
 <h2>Demo</h2>
 <p>
+    This is a real-world demonstration of using RxJS and D3.js to track a user-defined budget. Below is bar
+    graph showing money spent vs. money budgeted for the current month.
+</p><p>
     Marketing <span id="graph"></span>
-    <button id="plus">+</button><input type="number" value="20"><span class="prefix">$</span><button id="minus">&minus;</button>
+    <button id="plus">+</button>
+    <span>$</span><input type="number" value="20">
+    <button id="minus">&minus;</button>
+    <br />
+    <br />
+    <em>Try clicking, typing, and scrolling to change the budget</em>
 </p>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"></script>
@@ -111,17 +116,27 @@ $(function() {
             .select(function() { return +$('input').val() + 1; });
 
     var keyupInput = $('input').keyupAsObservable()
+            .select(function(e) { return +$(e.target).val(); })
+            .distinctUntilChanged(); // Prevents updating when the value hasn't changed
+
+    // User can also change input by scrolling with mouse
+    var changeInput = $('input').changeAsObservable()
             .select(function(e) { return +$(e.target).val(); });
 
     var clickMinus = $('#minus').clickAsObservable()
             .select(function() { return +$('input').val() - 1; });
 
-    var changeNumbers = clickPlus.merge(keyupInput).merge(clickMinus);
+    // Create an observable for ALL events
+    var changeNumbers = clickPlus
+            .merge(keyupInput)
+            .merge(changeInput)
+            .merge(clickMinus);
+
+    // Update the UI when the budget changes
     changeNumbers.subscribe(function(budget) {
         $('input').val(budget);
         updateGraph(spent, budget);
     });
-
 
     // Initialize everything
     var spent = 10;
