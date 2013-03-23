@@ -1,7 +1,6 @@
 <html>
 <head>
-    <link href="//fonts.googleapis.com/css?family=Corben" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Corben|Droid+Sans" rel="stylesheet" type="text/css">
     <link href="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/themes/github.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -20,24 +19,10 @@
         <button class="decrease">&minus;</button>
     </div>
 </p>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/rxjs/2.1.0/rx.min.js"></script>
-<script src="rx.jquery.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/rainbow.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/generic.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/javascript.js"></script>
-<script>
-    $(function() {
-        // Insert the source code into the age
-        var source = $('<code>').html($('script:last').text().trim()).attr('data-language', 'javascript');
-        $('pre').append(source);
-    });
-</script>
 <h2>Source</h2>
 <pre></pre>
 <script id="source">
-$(function() {
+    window.onload = function() {
     var layout = {
         width: $('svg').width() - 15,
         height: $('svg').height(),
@@ -56,25 +41,26 @@ $(function() {
             .attr('class', 'background');
 
     // Append a marker for today
-    var currentDay = (new Date).getDate();
-    var daysInMonth = new Date((new Date).getFullYear(), (new Date).getMonth()+1, 0).getDate();
+    var d = new Date;
+    var today = d.getDate();
+    var totalDays = new Date(d.getYear(), d.getMonth()+1, 0).getDate();
 
     graph.append("rect")
-            .attr('x', (currentDay / daysInMonth) * layout.width)
+            .attr('x', (today / totalDays) * layout.width)
             .attr('y', layout.margin.top)
             .attr('width', 1)
             .attr('height', layout.height)
             .attr('class', 'marker');
 
     graph.append("text")
-            .attr('x', (currentDay / daysInMonth) * layout.width)
+            .attr('x', (today / totalDays) * layout.width)
             .attr('dy', '1.1em')
             .attr('height', layout.height)
             .attr('class', 'marker')
             .text('now');
 
     // Create a placeholder for the progress bar
-    var progress = graph.insert('g', '.marker').attr('class', 'progress');
+    graph.insert('g', '.marker').attr('class', 'progress');
 
     // Create a scale we can use to convert input values to pixels
     var scale = d3.scale.linear().range([0, layout.width]).clamp(true);
@@ -86,7 +72,7 @@ $(function() {
      * @param budget    Money budgeted for this month
      */
     var updateProgress = function($el, spent, budget) {
-        // Set the maximum value for the scale to whatever was budgeted
+        // Set the maximum value to whatever was budgeted
         scale.domain([0,budget]);
 
         // Clear existing graph in case we're redrawing
@@ -160,7 +146,21 @@ $(function() {
     var spent = 10;
     var budget = $('input').val();
     updateProgress($('svg g'), spent, budget);
-});
+};
+</script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js" async></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rxjs/2.1.0/rx.min.js" async></script>
+<script src="rx.jquery.js" async></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/rainbow.min.js" async></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/generic.js" async></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/javascript.js" async></script>
+<script>
+    $(function() {
+        // Insert the source code into the age
+        var source = $('<code>').html($('script:first').text().trim()).attr('data-language', 'javascript');
+        $('pre').append(source);
+    });
 </script>
 </body>
 </html>
