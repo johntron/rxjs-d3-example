@@ -16,25 +16,33 @@ p { line-height: 1.5em; }
 
 pre { margin-top: 0; }
 
+p > * {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+
+div { text-align: right; }
 
 /* Graph */
 
 svg {
-  display: inline-block;
-  margin-left: 0.5em;
-  margin-right: 1em;
+  font-family: inherit;
+  width: 38em;
+  height: 2.25em;
   position: relative;
-  top: 0.1em;
 }
 
 .background { fill: #DDD; }
 
-.spent-bar { fill: dodgerblue; }
-
-.spent-text {
-  font-family: inherit;
-  fill: white;
+.marker {
+  fill: #000;
+  text-anchor: middle;
+  font-size: 0.75em;
 }
+
+rect.progress { fill: dodgerblue; }
+
+text.progress { fill: white; text-anchor: end; }
 
 
 /* UI controls */

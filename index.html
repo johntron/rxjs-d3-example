@@ -9,16 +9,16 @@
 <h1>RxJS + D3.js</h1>
 <h2>Demo</h2>
 <p>
-    This is a real-world demonstration of using RxJS and D3.js to track a user-defined budget. Below is bar
-    graph showing money spent vs. money budgeted for the current month.
-</p><p>
-    Marketing <svg></svg>
-    <button class="increase">&plus;</button>
-    <span>$</span><input type="number" value="20" min="1">
-    <button class="decrease">&minus;</button>
-    <br />
-    <br />
-    <em>Try clicking, typing, and scrolling to change the budget</em>
+    <!--<label>Marketing</label>-->
+    <em>Money spent vs. budgeted</em>
+    <br>
+    <svg></svg>
+    <br>
+    <div>
+        Budget: <button class="increase">&plus;</button>
+        <span>$</span><input type="number" value="20" min="1">
+        <button class="decrease">&minus;</button>
+    </div>
 </p>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"></script>
@@ -39,8 +39,9 @@
 <script id="source">
 $(function() {
     var layout = {
-        width: 340,
-        height: 20
+        width: $('svg').width() - 15,
+        height: $('svg').height(),
+        margin: {top: 15, right: 15}
     };
 
     // Create a scale we can use to convert input values to pixels
@@ -49,13 +50,13 @@ $(function() {
     // Create an SVG to hold the graph
     var graph = d3.select("svg")
             .attr("width", layout.width)
-            .attr("height", layout.height);
+            .attr("height", layout.height + layout.margin.top);
 
     // Append a background to delineate edges of graph
     graph.append("rect")
-            .attr('y', layout.height / 4)
+            .attr('y', layout.margin.top)
             .attr('width', layout.width)
-            .attr('height', layout.height * 0.75)
+            .attr('height', layout.height)
             .attr('class', 'background');
 
     // Create a scale for today's position in the month
@@ -65,13 +66,20 @@ $(function() {
     // Append a marker for today
     graph.append("rect")
             .attr('x', (currentDay / daysInMonth) * layout.width)
-            .attr('fill', '#000')
+            .attr('y', layout.margin.top)
             .attr('width', 1)
             .attr('height', layout.height)
             .attr('class', 'marker');
 
+    graph.append("text")
+            .attr('x', (currentDay / daysInMonth) * layout.width)
+            .attr('dy', '1.1em')
+            .attr('height', layout.height)
+            .attr('class', 'marker')
+            .text('now');
+
     // Create a placeholder for the progress bar
-    var progress = graph.append('g').attr('class', 'progress');
+    var progress = graph.insert('g', '.marker').attr('class', 'progress');
 
     /**
      * Redraws progress for the month.
@@ -92,21 +100,19 @@ $(function() {
         // Draw the progress bar showing money spent
         progress.append("rect")
                 .attr('x', 0)
-                .attr('y', layout.height / 4)
+                .attr('y', layout.margin.top)
                 .attr('width', scale(spent))
-                .attr('height', layout.height * 0.75)
-                .attr('class', 'spent-bar');
+                .attr('height', layout.height)
+                .attr('class', 'progress');
 
         // Add a label
         progress.append("text")
                 .attr('x', scale(spent))
-                .attr('y', layout.height / 4)
-                .attr('font-size', layout.height * 0.7)
+                .attr('y', layout.margin.top + 0.3 )
                 .attr('dx', -3)
-                .attr('dy', '0.97em')
-                .attr('text-anchor', 'end')
+                .attr('dy', '1em')
                 .text('$' + spent)
-                .attr('class', 'spent-text');
+                .attr('class', 'progress');
     };
 
     // UI controls
