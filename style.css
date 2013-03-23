@@ -19,7 +19,7 @@ pre { margin-top: 0; }
 
 /* Graph */
 
-#graph {
+svg {
   display: inline-block;
   margin-left: 0.5em;
   margin-right: 1em;
@@ -27,11 +27,11 @@ pre { margin-top: 0; }
   top: 0.1em;
 }
 
-#graph .background { fill: #DDD; }
+.background { fill: #DDD; }
 
-#graph .spent-bar { fill: dodgerblue; }
+.spent-bar { fill: dodgerblue; }
 
-#graph .spent-text {
+.spent-text {
   font-family: inherit;
   fill: white;
 }

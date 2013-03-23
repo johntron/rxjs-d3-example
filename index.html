@@ -12,10 +12,10 @@
     This is a real-world demonstration of using RxJS and D3.js to track a user-defined budget. Below is bar
     graph showing money spent vs. money budgeted for the current month.
 </p><p>
-    Marketing <span id="graph"></span>
-    <button id="plus">+</button>
-    <span>$</span><input type="number" value="20">
-    <button id="minus">&minus;</button>
+    Marketing <svg></svg>
+    <button class="increase">&plus;</button>
+    <span>$</span><input type="number" value="20" min="1">
+    <button class="decrease">&minus;</button>
     <br />
     <br />
     <em>Try clicking, typing, and scrolling to change the budget</em>
@@ -38,39 +38,36 @@
 <pre></pre>
 <script id="source">
 $(function() {
-    var width = 340,
-        height = 20;
+    var layout = {
+        width: 340,
+        height: 20
+    };
 
     // Create a scale we can use to convert input values to pixels
-    var spentScale = d3.scale.linear().range([0, width]);
+    var scale = d3.scale.linear().range([0, layout.width]).clamp(true);
 
     // Create an SVG to hold the graph
-    var graph = d3.select("#graph").append("svg")
-            .attr("width", width)
-            .attr("height", height);
+    var graph = d3.select("svg")
+            .attr("width", layout.width)
+            .attr("height", layout.height);
 
     // Append a background to delineate edges of graph
     graph.append("rect")
-            .attr('y', height / 4)
-            .attr('width', width)
-            .attr('height', height * 0.75)
+            .attr('y', layout.height / 4)
+            .attr('width', layout.width)
+            .attr('height', layout.height * 0.75)
             .attr('class', 'background');
 
     // Create a scale for today's position in the month
-    var now = new Date;
-    var monthBegin = new Date(now.getFullYear(), now.getMonth(), 1);
-    var monthEnd = new Date(now.getFullYear(), now.getMonth()+1, 0);
-    var timeScale = d3.time.scale()
-            .domain([monthBegin, monthEnd])
-            .range([0, width]);
+    var currentDay = (new Date).getDate();
+    var daysInMonth = new Date((new Date).getFullYear(), (new Date).getMonth()+1, 0).getDate();
 
     // Append a marker for today
     graph.append("rect")
-            .data([new Date])
-            .attr('x', timeScale)
+            .attr('x', (currentDay / daysInMonth) * layout.width)
             .attr('fill', '#000')
             .attr('width', 1)
-            .attr('height', height)
+            .attr('height', layout.height)
             .attr('class', 'marker');
 
     // Create a placeholder for the progress bar
@@ -78,70 +75,87 @@ $(function() {
 
     /**
      * Redraws progress for the month.
+     * @param $el       svg:g jQuery object for progress bar
      * @param spent     Money spent so far this month
      * @param budget    Money budgeted for this month
      */
-    var updateGraph = function(spent, budget) {
+    var updateProgress = function($el, spent, budget) {
         // Set the maximum value for the scale to whatever was budgeted
-        spentScale.domain([0,budget]);
+        scale.domain([0,budget]);
 
         // Clear existing graph in case we're redrawing
-        $('#graph .progress').empty();
+        $el.empty();
 
         // Update graph data
-        progress.data([spent]);
+        var progress = d3.select($el.get(0));
 
         // Draw the progress bar showing money spent
         progress.append("rect")
                 .attr('x', 0)
-                .attr('y', height / 4)
-                .attr('width', spentScale)
-                .attr('height', height * 0.75)
+                .attr('y', layout.height / 4)
+                .attr('width', scale(spent))
+                .attr('height', layout.height * 0.75)
                 .attr('class', 'spent-bar');
 
         // Add a label
         progress.append("text")
-                .attr('x', spentScale)
-                .attr('y', height / 4)
-                .attr('font-size', height * 0.7)
+                .attr('x', scale(spent))
+                .attr('y', layout.height / 4)
+                .attr('font-size', layout.height * 0.7)
                 .attr('dx', -3)
                 .attr('dy', '0.97em')
                 .attr('text-anchor', 'end')
-                .text(function(spent) { return '$' + spent; })
+                .text('$' + spent)
                 .attr('class', 'spent-text');
     };
 
     // UI controls
-    var clickPlus = $('#plus').clickAsObservable()
-            .select(function() { return +$('input').val() + 1; });
+    var increase = $('.increase').clickAsObservable()
+            .select(function(e) {
+                return {
+                    $el: $(e.target),
+                    transform: function(x) { return Math.max(++x, 1); }
+                };
+            });
 
-    var keyupInput = $('input').keyupAsObservable()
-            .select(function(e) { return +$(e.target).val(); })
-            .distinctUntilChanged(); // Prevents updating when the value hasn't changed
+    var change = $('input').changeAsObservable()
+            .select(function(e) {
+                return {
+                    $el: $(e.target),
+                    transform: function(x) { return Math.max(+x, 1); }
+                };
+            });
 
-    // User can also change input by scrolling with mouse
-    var changeInput = $('input').changeAsObservable()
-            .select(function(e) { return +$(e.target).val(); });
-
-    var clickMinus = $('#minus').clickAsObservable()
-            .select(function() { return +$('input').val() - 1; });
+    var decrease = $('.decrease').clickAsObservable()
+            .select(function(e) {
+                return {
+                    $el: $(e.target),
+                    transform: function(x) { return Math.max(--x, 1); }
+                };
+            });
 
     // Create an observable for ALL events
-    var changeNumbers = clickPlus
-            .merge(keyupInput)
-            .merge(changeInput)
-            .merge(clickMinus);
+    var change = change.merge(increase).merge(decrease);
 
-    // Update the UI when the budget changes
-    changeNumbers.subscribe(function(budget) {
+    // Bind the UI to change events
+    change.subscribe(function(e) {
+        // Get old budget
+        var budget = $('input').val();
+
+        // Transform budget using event
+        budget = e.transform(budget);
+
+        // Update input field
         $('input').val(budget);
-        updateGraph(spent, budget);
+
+        // Redraw graph
+        updateProgress($('svg g'), spent, budget);
     });
 
     // Initialize everything
     var spent = 10;
     var budget = $('input').val();
-    updateGraph(spent, budget);
+    updateProgress($('svg g'), spent, budget);
 });
 </script>
 </body>
