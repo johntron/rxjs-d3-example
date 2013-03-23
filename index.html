@@ -44,10 +44,6 @@ $(function() {
         margin: {top: 15, right: 15}
     };
 
-    // Create a scale we can use to convert input values to pixels
-    var scale = d3.scale.linear().range([0, layout.width]).clamp(true);
-
-    // Create an SVG to hold the graph
     var graph = d3.select("svg")
             .attr("width", layout.width)
             .attr("height", layout.height + layout.margin.top);
@@ -59,11 +55,10 @@ $(function() {
             .attr('height', layout.height)
             .attr('class', 'background');
 
-    // Create a scale for today's position in the month
+    // Append a marker for today
     var currentDay = (new Date).getDate();
     var daysInMonth = new Date((new Date).getFullYear(), (new Date).getMonth()+1, 0).getDate();
 
-    // Append a marker for today
     graph.append("rect")
             .attr('x', (currentDay / daysInMonth) * layout.width)
             .attr('y', layout.margin.top)
@@ -80,6 +75,9 @@ $(function() {
 
     // Create a placeholder for the progress bar
     var progress = graph.insert('g', '.marker').attr('class', 'progress');
+
+    // Create a scale we can use to convert input values to pixels
+    var scale = d3.scale.linear().range([0, layout.width]).clamp(true);
 
     /**
      * Redraws progress for the month.
@@ -115,7 +113,7 @@ $(function() {
                 .attr('class', 'progress');
     };
 
-    // UI controls
+    // Events
     var increase = $('.increase').clickAsObservable()
             .select(function(e) {
                 return {
@@ -158,7 +156,7 @@ $(function() {
         updateProgress($('svg g'), spent, budget);
     });
 
-    // Initialize everything
+    // Initialize
     var spent = 10;
     var budget = $('input').val();
     updateProgress($('svg g'), spent, budget);
