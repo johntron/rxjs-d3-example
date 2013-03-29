@@ -1,7 +1,6 @@
 <html>
 <head>
-    <link href="//fonts.googleapis.com/css?family=Corben" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Corben|Droid+Sans" rel="stylesheet" type="text/css">
     <link href="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/themes/github.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -24,16 +23,6 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.0.8/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/rxjs/2.1.0/rx.min.js"></script>
 <script src="rx.jquery.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/rainbow.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/generic.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/javascript.js"></script>
-<script>
-    $(function() {
-        // Insert the source code into the age
-        var source = $('<code>').html($('script:last').text().trim()).attr('data-language', 'javascript');
-        $('pre').append(source);
-    });
-</script>
 <h2>Source</h2>
 <pre></pre>
 <script id="source">
@@ -161,6 +150,16 @@ $(function() {
     var budget = $('input').val();
     updateProgress($('svg g'), spent, budget);
 });
+</script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/rainbow.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/generic.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/rainbow/1.1.8/js/language/javascript.js"></script>
+<script>
+    $(function() {
+        // Insert the source code into the age
+        var source = $('<code>').html($('#source').text().trim()).attr('data-language', 'javascript');
+        $('pre').append(source);
+    });
 </script>
 </body>
 </html>
